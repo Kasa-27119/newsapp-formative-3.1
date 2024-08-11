@@ -9,11 +9,17 @@ const MobileMenu = ({closeMethod}) => {
         </div>
 
         <ul id="mobile-menu">
-            <li>
-                <Link to="/" onClick={closeMethod}>Home</Link>
+            <li className='navlink'>
+                <Link to='/' onClick={closeMethod}>Home</Link>
             </li>
-            <li>
-                <Link to="/about" onClick={closeMethod}>About</Link>
+            <li className='navlink'>
+              <Link to='/aboutMe' onClick={closeMethod}>About Me</Link>
+            </li>
+            <li className='navlink'>
+              <Link to='/' onClick={closeMethod}>Videos</Link>
+            </li>
+            <li className='navlink'>
+              <Link to='/' onClick={closeMethod}>Contact Us</Link>
             </li>
         </ul>
     </>

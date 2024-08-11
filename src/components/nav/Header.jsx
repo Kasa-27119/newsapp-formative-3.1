@@ -1,44 +1,50 @@
-import {useState} from 'react'
-import MobileMenu from './MobileMenu'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import MobileMenu from './MobileMenu'
 import { List } from 'react-bootstrap-icons'
 
 const Header = () => {
-  // menu state variable and state
-  const [menuIsOpen, openMenu] = useState(false)
-  // toggle mobile menu
+  // opened/closed mobile menu state
+  const [menuIsOpen, setMenuIsOpen] = useState(false)
+
   const toggleMobileMenu = () => {
-    openMenu(!menuIsOpen)
-    document.body.classList.toggle("no-scroll")
+    setMenuIsOpen(!menuIsOpen)
   }
 
   return (
-    <header>
-      <div id='top-nav'>
-        <div id='logo'>
-          <Link to="/">NewsAPI</Link>
-        </div>
+    <div>
+        <nav id='navbar'>
+          <h4 className='news-logo'>
+            <Link to='/'>NewsApp</Link>
+          </h4>
 
-        {/* desktop menu */}
-        <ul id='menu'>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-        </ul>
+          {/* desktop menu */}
+          <ul>
+            <li className='navlink'>
+              <Link to='/'>Home</Link>
+            </li>
+            <li className='navlink'>
+              <Link to='/aboutMe'>About Me</Link>
+            </li>
+            <li className='navlink'>
+              <Link to='/'>Videos</Link>
+            </li>
+            <li className='navlink'>
+              <Link to='/'>Contact Us</Link>
+            </li>
+          </ul>
 
-        {/* hamburger icon */}
-        <div id='menu-container'>
-          <button id='menu-button' className='show0mobile-menu-button' onClick={toggleMobileMenu}>
-            <List id='hamburger-icon'></List>
-          </button>
-        </div>
-      </div>
-
-      {menuIsOpen && <MobileMenu closeMethod={toggleMobileMenu}/>}
-    </header>
+          {/* hamburger icon, only show on small screens */}
+          <div id='menuContainer'>
+            <div id='menuButton' className='showMobileMenuButton' onClick={toggleMobileMenu}>
+              <List id='hamburger-icon'></List>
+            </div>
+          </div>
+        </nav>
+        {/* curly brackets allow me to go into js */}
+        {/* giving the mobile menu our close method of toggleMobileMenu as a prop */}
+        {menuIsOpen && <MobileMenu closeMethod={toggleMobileMenu}/>}
+    </div>
   )
 }
 

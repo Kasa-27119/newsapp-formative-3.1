@@ -1,78 +1,89 @@
 import {useState, useEffect} from 'react'
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { useArticlesContext } from '../hooks/useArticlesContext';
 
 // API KEY
 const apiKey = import.meta.env.VITE_NEWS_API_KEY
 
 const Home = () => {
-  // State for selects:
-  const [country, setCountry] = useState('');
+  // search state
+  const [searchNews, setSearchNews] = useState("");
+
+  // category select state
   const [category, setCategory] = useState('');
-  // State for loading
+
+  // loading state
   const [loading, setLoading] = useState(true)
-  // Initiate useNavigate
-  const navigate = useNavigate()
 
   // bring in state and dispatch
   const {articles, dispatch} = useArticlesContext()
 
-  useEffect(() => {
-    // Set loading to true:
-    setLoading(true)
-    // fetch function
-    const fetchArticles = async () => {
-      await axios.get(`https://newsapi.org/v2/top-headlines?language=en&country=${country}&category=${category}&apiKey=${apiKey}`)
-        .then(response => {
-          console.log(response.data.articles)
-          // setArticles(response.data.articles)
-          dispatch({type: 'GET_ARTICLES', payload: response.data.articles})
-          setLoading(false)
-        })
-        .catch(error => {
-          console.log(error)
-          setLoading(true)
-        })
-    }
-    fetchArticles()
-    // console.log("Country state is now " + country)
-    // console.log("Category state is now " + category)
-    console.log(apiKey);
-  }, [country, category]) 
+  // filtered articles state
+  const [filteredArticles, setFilteredArticles] = useState([])
 
-  // handle country change
-  const handleCountryChange = (event) => {
-    let newCountry = event.target.value
-    // console.log(newCountry);
-    setCountry(newCountry)
+  // fetch function
+  const fetchArticles = async () => {
+    await axios.get(`https://newsapi.org/v2/top-headlines?language=en&category=${category}&apiKey=${apiKey}`)
+      .then(response => {
+        console.log(response.data.articles)
+        dispatch({type: 'GET_ARTICLES', payload: response.data.articles})
+        setLoading(false)
+      })
+      .catch(error => {
+        console.log(error)
+        setLoading(false)
+      })
   }
 
-  // handle the category change
+  // initial api call & load
+  useEffect(() => {
+    // set loading true
+    setLoading(true)
+
+    // run fetch articles below & api key
+    fetchArticles()
+  }, [category]) 
+
+  // handlers for search & category changes
+
+  // filter articles on search 
+  useEffect(() => {
+    // filter articles based on the search term
+    if (articles) {
+      const filtered = articles.filter(article => 
+        article.title.toLowerCase().includes(searchNews.toLowerCase())
+      );
+      setFilteredArticles(filtered);
+    }
+  }, [searchNews, articles]);
+
+  // search change
+  const handleSearchChange = (event) => {
+    setSearchNews(event.target.value)
+  }
+
+  // category change
   const handleCategoryChange = (event) => {
     let newCategory = event.target.value
-    // console.log(newCategory);
     setCategory(newCategory)
   }
 
-  const handleReadMoreClick = (index) => {
-    console.log(index);
-    navigate(`/article/${index}`)
-  }
-
-  // mapped articles component
+  // mapped articles 
   const Articles = ({articles}) => {
     const mappedArticles = articles.map((article, index) => {
+
       // map return
       return (
         <div key={index} className='article'>
           <h2>{article.title}</h2>
           <p>{article.description}</p>
-          <button onClick={() => handleReadMoreClick(index)}>Read More</button>
+
+          <button className='read-more-btn'>Read More...</button>
         </div>
       )
     })
-    // Articles Component return:
+
+    // return mapped articles 
     return (
       <>
         {mappedArticles}
@@ -80,26 +91,51 @@ const Home = () => {
     )
   }
 
+  // what is being returned
   return (
     <div className='home-container'>
-      <div className='filter-container'>
-        {/* Country Filters */}
-        <div className='filter-flex-container'>
-          <label htmlFor="country-select">Country:</label>
-          <select name="country-select" id="country-select" onChange={handleCountryChange}>
-            <option value="">Any</option>
-            <option value="us">USA</option>
-            <option value="gb">Britian</option>
-            <option value="au">Australia</option>
-            <option value="nz">NZ</option>
-          </select>
-        </div>
-        
+      {/* hero section */}
+      <div className='hero-section'>
 
-        {/* Category Filters */}
-        <div className='filter-flex-container'>
+        {/* breaking news header */}
+        <h2 className='page-header'>Breaking News</h2>
+
+        {/* grid/bento image container */}
+        <div className='grid-container'>
+          <div className='grid-item'>
+            <h1 id='headline-1'>2024 Olympics - Latest Updates</h1>
+            <div className='grid-overlay'></div>
+          </div>
+          <div className='grid-item'>
+            <h3 className='headline-2'>Financial Report - Paul Little</h3>
+            <div className='grid-overlay'></div>
+          </div>
+          <div className='grid-item'>
+            <h3 className='headline-2'>Climate Protests - Students at Hamburg</h3>
+            <div className='grid-overlay'></div>
+          </div>
+        </div>
+      </div>
+
+      {/* articles header */}
+      <h2 className='page-header'>Latest Articles</h2>
+
+      {/* filter and search */}
+      <div className='filter-search-container'>
+
+        {/* search field */}
+        <div className='search-container'>
+          <label htmlFor='search-input'>Search: </label>
+          <input type='text' 
+            id='search-input' 
+            value={searchNews} 
+            onChange={handleSearchChange} ></input>
+        </div>
+
+        {/* category filter */}
+        <div className='filter-container'>
           <label htmlFor="category-select">Category:</label>
-          <select name="category-select" id="category-select" onChange={handleCategoryChange}>
+          <select name="category-select" id="category-select" value={category} onChange={handleCategoryChange}>
             <option value="">All</option>
             <option value="business">Business</option>
             <option value="entertainment">Entertainment</option>
@@ -110,15 +146,17 @@ const Home = () => {
           </select>
         </div>
       </div> 
-      {/* End of Filters */}
+      {/* end of filter & search container */}
 
+      {/* article container - article pop. here */}
       <div className='article-container'>
         {loading ? (
           <div>Loading...</div>
         ) : (
-          <Articles articles={articles}/>
+          <Articles articles={filteredArticles}/>
         )}
       </div>
+      {/* end of article container */}
 
     </div>
   )
